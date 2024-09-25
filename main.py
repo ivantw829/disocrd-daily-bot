@@ -4,6 +4,7 @@ import sqlite3
 import rich
 import datetime
 import pytz
+import os
 
 
 def Config():
@@ -23,6 +24,10 @@ bot = discord.Bot(intents=discord.Intents.all())
 @bot.event
 async def on_ready():
     rich.print(f"[green]Logged in as {bot.user}[/green]")
+
+    # 如果沒有 /database 資料夾就創建一個
+    if not os.path.exists("database"):
+        os.makedirs("database")
 
 
 @bot.event
