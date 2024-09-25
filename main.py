@@ -102,8 +102,13 @@ async def 簽到天數(ctx):
     # 調取資料
     user_id = ctx.author.id
     # 使用單引號來確保 SQL 語法正確
-    cursor.execute(f"SELECT * FROM '{user_id}'")
-    data = cursor.fetchall()
+    try:
+        cursor.execute(f"SELECT * FROM '{user_id}'")
+        data = cursor.fetchall()
+    except:
+        embed = discord.Embed(title="你還沒有簽到過",color=discord.Colour.red())
+        embed.set_thumbnail(url="https://cdn3.emoji.gg/emojis/4934-error.png")
+        return
 
     # 計算簽到天數
     days = len(data)
