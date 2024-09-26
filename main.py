@@ -4,7 +4,6 @@ import sqlite3
 import rich
 import datetime
 import pytz
-import os
 
 
 def Config():
@@ -24,10 +23,6 @@ bot = discord.Bot(intents=discord.Intents.all())
 @bot.event
 async def on_ready():
     rich.print(f"[green]Logged in as {bot.user}[/green]")
-
-    # 如果沒有 /database 資料夾就創建一個
-    if not os.path.exists("database"):
-        os.makedirs("database")
 
 
 @bot.event
@@ -65,14 +60,17 @@ async def on_message(message):
         data = cursor.fetchall()
         if len(data) == 1:
             # 紀錄首位簽到者到 database/first.db
-            # 格式為 "user_id" | "2024/09/25"
+            # table 名稱為 "user_id"
             conn_first = sqlite3.connect("database/first.db")
             cursor_first = conn_first.cursor()
             cursor_first.execute(
-                f'CREATE TABLE IF NOT EXISTS "{today}" (user_id INTEGER PRIMARY KEY, time TEXT)'
+                f'CREATE TABLE IF NOT EXISTS "{message.author.id}" (day INTEGER PRIMARY KEY)'
             )
+            conn_first.commit()
+            # 新增一條資料在 table {user_id}
+            # "2024/09/25" 為 day
             cursor_first.execute(
-                f'INSERT INTO "{today}" (user_id, time) VALUES ({message.author.id}, "{datetime.datetime.now(pytz.timezone("Asia/Taipei")).strftime("%Y/%m/%d")}")'
+                f'INSERT INTO "{message.author.id}" (day) VALUES ("{datetime.datetime.now(pytz.timezone("Asia/Taipei")).strftime("%Y/%m/%d")}")'
             )
             conn_first.commit()
             await message.add_reaction("<:owner:1288358940110884976>")
@@ -111,7 +109,7 @@ async def 簽到天數(ctx):
         cursor.execute(f"SELECT * FROM '{user_id}'")
         data = cursor.fetchall()
     except:
-        embed = discord.Embed(title="你還沒有簽到過",color=discord.Colour.red())
+        embed = discord.Embed(title="你還沒有簽到過", color=discord.Colour.red())
         embed.set_thumbnail(url="https://cdn3.emoji.gg/emojis/4934-error.png")
         return
 
@@ -145,9 +143,7 @@ async def 簽到天數(ctx):
 
     # 回復訊息
     embed = discord.Embed(title="簽到數據", color=discord.Colour.green())
-    embed.description = (
-        f"> 總簽到天數: {days}\n> 連續簽到天數: {continuous_days}\n\n> 頭香次數: {first_days}"
-    )
+    embed.description = f"> 總簽到天數: {days}\n> 連續簽到天數: {continuous_days}\n\n> 頭香次數: {first_days}"
     embed.set_thumbnail(url=ctx.author.avatar.url)
     await ctx.respond(embed=embed)
 
