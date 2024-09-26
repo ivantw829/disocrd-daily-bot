@@ -21,7 +21,13 @@
    token: "YOUR_BOT_TOKEN"
    ```
 
-3. **運行系統**  
+3. **安裝套件**
+   執行以下命令安裝套件，建議於虛擬環境執行，以免和 discord.py 等其他分支衝突。
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **運行系統**  
    執行以下命令啟動簽到系統：
    ```bash
    python main.py
