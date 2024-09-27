@@ -4,6 +4,7 @@ import sqlite3
 import rich
 import datetime
 import pytz
+import os
 
 
 def Config():
@@ -23,6 +24,10 @@ bot = discord.Bot(intents=discord.Intents.all())
 @bot.event
 async def on_ready():
     rich.print(f"[green]Logged in as {bot.user}[/green]")
+
+    # 如果沒有 /database 資料夾就創建一個
+    if not os.path.exists("database"):
+        os.makedirs("database")
 
 
 @bot.event
@@ -64,13 +69,11 @@ async def on_message(message):
             conn_first = sqlite3.connect("database/first.db")
             cursor_first = conn_first.cursor()
             cursor_first.execute(
-                f'CREATE TABLE IF NOT EXISTS "{message.author.id}" (day INTEGER PRIMARY KEY)'
+                f'CREATE TABLE IF NOT EXISTS "{message.author.id}" (day TEXT PRIMARY KEY)'
             )
             conn_first.commit()
-            # 新增一條資料在 table {user_id}
-            # "2024/09/25" 為 day
             cursor_first.execute(
-                f'INSERT INTO "{message.author.id}" (day) VALUES ("{datetime.datetime.now(pytz.timezone("Asia/Taipei")).strftime("%Y/%m/%d")}")'
+                f'INSERT INTO "{message.author.id}" (day) VALUES ("{str(datetime.datetime.now(pytz.timezone("Asia/Taipei")).strftime("%Y/%m/%d %H:%M:%S"))}")'
             )
             conn_first.commit()
             await message.add_reaction("<:owner:1288358940110884976>")
