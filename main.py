@@ -99,14 +99,23 @@ async def on_message(message):
         conn.commit()
 
 
-@bot.slash_command(name="簽到天數", description="查看您簽到過的天數")
-async def 簽到天數(ctx):
+@bot.command(name="簽到天數", description="查看您簽到過的天數")
+async def 簽到天數(
+    ctx,
+    用戶: discord.Option(
+        discord.Member, description="查看用戶的簽到天數", required=False
+    ),  # type: ignore
+):
     # 連接資料庫
     conn = sqlite3.connect("database/users.db")
     cursor = conn.cursor()
 
     # 調取資料
-    user_id = ctx.author.id
+    if not 用戶:
+        user_id = ctx.author.id
+    else:
+        user_id = 用戶.id
+
     # 使用單引號來確保 SQL 語法正確
     try:
         cursor.execute(f"SELECT * FROM '{user_id}'")
@@ -114,6 +123,7 @@ async def 簽到天數(ctx):
     except:
         embed = discord.Embed(title="你還沒有簽到過", color=discord.Colour.red())
         embed.set_thumbnail(url="https://cdn3.emoji.gg/emojis/4934-error.png")
+        await ctx.respond(embed=embed, ephemeral=True)
         return
 
     # 計算簽到天數
@@ -145,9 +155,13 @@ async def 簽到天數(ctx):
     first_days = len(first_data)
 
     # 回復訊息
-    embed = discord.Embed(title="簽到數據", color=discord.Colour.green())
+    user = await bot.fetch_user(user_id)
+    embed = discord.Embed(title=f"{user.name} 的簽到數據", color=discord.Colour.green())
     embed.description = f"> 總簽到天數: {days}\n> 連續簽到天數: {continuous_days}\n\n> 頭香次數: {first_days}"
-    embed.set_thumbnail(url=ctx.author.avatar.url)
+    if user.avatar:
+        embed.set_thumbnail(url=user.avatar.url)
+    else:
+        embed.set_thumbnail(url=user.default_avatar.url)
     await ctx.respond(embed=embed)
 
     # 關閉資料庫連接
