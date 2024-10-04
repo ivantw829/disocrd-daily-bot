@@ -4,6 +4,7 @@ import sqlite3
 import rich
 import datetime
 import pytz
+import asyncio
 import os
 
 
@@ -72,6 +73,7 @@ async def on_message(message):
                 f'CREATE TABLE IF NOT EXISTS "{message.author.id}" (day TEXT PRIMARY KEY)'
             )
             conn_first.commit()
+            await asyncio.sleep(3)
             cursor_first.execute(
                 f'INSERT INTO "{message.author.id}" (day) VALUES ("{str(datetime.datetime.now(pytz.timezone("Asia/Taipei")).strftime("%Y/%m/%d %H:%M:%S"))}")'
             )
