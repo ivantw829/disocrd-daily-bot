@@ -97,7 +97,7 @@ async def on_message(message):
     cursor.execute(f'CREATE TABLE IF NOT EXISTS "{user_id}" (date TEXT PRIMARY KEY)')
     cursor.execute(f'SELECT * FROM "{user_id}" WHERE date = "{today}"')
     if not cursor.fetchone():
-        cursor.execute(f'INSERT INTO "{user_id}" (date) VALUES ("{today}")')
+        cursor.execute(f'INSERT INTO "{user_id}" (day) VALUES ("{today}")')
         conn.commit()
 
 
@@ -149,7 +149,7 @@ async def 簽到天數(
     cursor_first = conn_first.cursor()
     # 如果 user_id 不在裡面就創建一條
     cursor_first.execute(
-        f'CREATE TABLE IF NOT EXISTS "{user_id}" (date TEXT PRIMARY KEY)'
+        f'CREATE TABLE IF NOT EXISTS "{user_id}" (day TEXT PRIMARY KEY)'
     )
     conn_first.commit()
     cursor_first.execute(f"SELECT * FROM '{user_id}'")
